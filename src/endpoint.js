@@ -90,8 +90,8 @@ class EntityFactoryEndpoint {
                 return;
             }
             if (action.type === 'invalidToken') {
-                localStorage.removeItem(this._tokenName);
-                this._connection.close();
+                console.warn('invalid token the old token was removed from local store');
+                this.logout();
                 return;
             }
             if (action.type === 'myRights') {
@@ -106,7 +106,7 @@ class EntityFactoryEndpoint {
             targetAction(action.payload);
         };
         this._connection.onerror = function (err) {
-            console.error(err);
+            // console.error(err);
         };
     }
 
@@ -119,6 +119,14 @@ class EntityFactoryEndpoint {
      */
     authenticate(user, password) {
         this.send('requestToken', {user: user, password: password});
+    }
+
+    /**
+     * remove the authentication token
+     */
+    logout() {
+        localStorage.removeItem(this._tokenName);
+        this._connection.close();
     }
 
     /**
@@ -137,7 +145,11 @@ class EntityFactoryEndpoint {
         if (mode === 'and') {
             for (let i = 0; i < groups.length; i++) {
                 for (let j = 0; j < names.length; j++) {
-                    if (!this._rights[groups[i]].Contains(names[j])) {
+                    const groupRights = this._rights[groups[i]];
+                    if (!groupRights || !groupRights.rights) {
+                        continue;
+                    }
+                    if (!groupRights.rights.Contains(names[j])) {
                         return false;
                     }
                 }
@@ -146,7 +158,11 @@ class EntityFactoryEndpoint {
         } else {
             for (let i = 0; i < groups.length; i++) {
                 for (let j = 0; j < names.length; j++) {
-                    if (this._rights[groups[i]].Contains(names[j])) {
+                    const groupRights = this._rights[groups[i]];
+                    if (!groupRights || !groupRights.rights) {
+                        continue;
+                    }
+                    if (groupRights.rights.Contains(names[j])) {
                         return true;
                     }
                 }

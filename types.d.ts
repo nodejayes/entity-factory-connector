@@ -41,6 +41,10 @@ export class EntityFactoryEndpoint {
      */
     authenticate(user: string, password: string): void;
     /**
+     * remove the authentication token
+     */
+    logout(): void;
+    /**
      * check if some rights are in the authentication context
      * can connected with "and" or "or"
      *
