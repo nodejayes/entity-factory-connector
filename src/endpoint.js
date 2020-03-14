@@ -53,6 +53,15 @@ class EntityFactoryEndpoint {
     }
 
     /**
+     * if the current endpoint authenticated again a entity-factory-gateway
+     * @readonly
+     * @return {boolean}
+     */
+    get isAuthenticated() {
+        return !!localStorage.getItem(this._tokenName);
+    }
+
+    /**
      * connect to the Entity Factory Backend
      * when the Connection is lost the Connector try to reconnect
      *

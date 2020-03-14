@@ -28,6 +28,12 @@ export class EntityFactoryEndpoint {
      */
     connect(url?: string): void;
     /**
+     * if the current endpoint authenticated again a entity-factory-gateway
+     * @readonly
+     * @return {boolean}
+     */
+    get isAuthenticated(): boolean;
+    /**
      * authenticate the connector on a entity-factory-gateway
      *
      * @param user the username
