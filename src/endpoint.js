@@ -131,6 +131,9 @@ class EntityFactoryEndpoint {
      */
     hasRights(mode, names) {
         const groups = Object.keys(this._rights);
+        if (groups.length < 1) {
+            return false;
+        }
         if (mode === 'and') {
             for (let i = 0; i < groups.length; i++) {
                 for (let j = 0; j < names.length; j++) {

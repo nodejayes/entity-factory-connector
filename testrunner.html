@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mocha Tests</title>
+    <link rel="stylesheet" href="node_modules/mocha/mocha.css">
+</head>
+<body>
+<div id="mocha"></div>
+<script src="node_modules/mocha/mocha.js"></script>
+<script src="node_modules/chai/chai.js"></script>
+<script>mocha.setup('bdd')</script>
+<script src="dist/entity-factory-connector.js"></script>
+<script>
+    describe('hasRights check', () => {
+        it('check and', () => {
+            var e = new entityFactoryConnector.EntityFactoryEndpoint('test');
+            e._rights = {
+                admin: ['find', 'right']
+            };
+            chai.assert.isTrue(e.hasRights('and', ['find', 'right']));
+            chai.assert.isFalse(e.hasRights('and', ['find', 'right', 'other']));
+        });
+        it('check or', () => {
+            var e = new entityFactoryConnector.EntityFactoryEndpoint('test');
+            e._rights = {
+                admin: ['find', 'right']
+            };
+            chai.assert.isTrue(e.hasRights('or', ['find', 'other']));
+            chai.assert.isFalse(e.hasRights('or', ['other', 'otherone']));
+        });
+        it('false on nothing', () => {
+            var e = new entityFactoryConnector.EntityFactoryEndpoint('test');
+            e._rights = {};
+            chai.assert.isFalse(e.hasRights('and', ['find', 'right']));
+            chai.assert.isFalse(e.hasRights('and', ['find', 'right', 'other']));
+            chai.assert.isFalse(e.hasRights('or', ['find', 'other']));
+            chai.assert.isFalse(e.hasRights('or', ['other', 'otherone']));
+        });
+    });
+</script>
+<script>
+    mocha.run();
+</script>
+</body>
+</html>
