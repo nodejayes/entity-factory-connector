@@ -27,13 +27,18 @@ class EntityFactoryEndpoint {
      * create a Endpoint for the EntityFactory Backend
      *
      * @constructor
+     * @param tokenName {string} the name of the token stored in local storage
      * @return {EntityFactoryEndpoint}
      */
-    constructor() {
+    constructor(tokenName) {
         this._connection = null;
         this._isOpen = false;
         this._cache = [];
         this._actions = {};
+        if (!tokenName) {
+            throw new Error('please specify a unique tokenName in constructor of EntityFactoryEndpoint');
+        }
+        this._tokenName = tokenName;
     }
 
     /**
@@ -55,6 +60,10 @@ class EntityFactoryEndpoint {
      */
     connect(url) {
         url = url || location.href.replace('http', 'ws');
+        const token = localStorage.getItem(this._tokenName);
+        if (token) {
+            url += '?token=' + encodeURI(token);
+        }
         this._connection = new WebSocket(url);
         this._connection.onopen = () => {
             this._isOpen = true;
@@ -65,6 +74,11 @@ class EntityFactoryEndpoint {
         };
         this._connection.onmessage = (msg) => {
             const action = _unpack(msg.data);
+            if (action.type === 'receiveToken') {
+                localStorage.setItem(this._tokenName, action.payload);
+                this._connection.close();
+                return;
+            }
             const targetAction = this._actions[action.type];
             if (!targetAction || typeof targetAction !== typeof function () {}) {
                 console.info('no valid Action found for ' + targetAction.type);
@@ -75,6 +89,10 @@ class EntityFactoryEndpoint {
         this._connection.onerror = function (err) {
             console.error(err);
         };
+    }
+
+    authenticate(user, password) {
+        this.send('requestToken', {user: user, password: password});
     }
 
     /**
