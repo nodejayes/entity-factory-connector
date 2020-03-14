@@ -1,0 +1,7 @@
+node_modules
+jsdoc-template
+node_modules
+spec
+src
+jsdoc.config.json
+webpack.config.js

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <title>Test entity-factory-connector</title>
+        <script src="../dist/entity-factory-connector.js"></script>
+    </head>
+    <body>
+        <script>
+            var ACTIONS = {
+                hello: (payload) => {
+                    alert('Hello ' + payload);
+                }
+            };
+
+            var ENDPOINT = new entityFactoryConnector.EntityFactoryEndpoint();
+            ENDPOINT.register(ACTIONS);
+            ENDPOINT.connect();
+            ENDPOINT.send('hello', 'Markus');
+        </script>
+    </body>
+</html>

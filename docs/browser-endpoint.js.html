@@ -1,0 +1,171 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Source: browser-endpoint.js | v3.0.0</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-jsdoc.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/tui-doc.css">
+
+    
+</head>
+<body>
+<nav class="lnb" id="lnb">
+    <div class="logo" style="width: 150px; height: 35px">
+        
+            <a href="https://github.com/nodejayes/ts-tooling" rel="noopener noreferrer" target="_blank">
+                <img src="/ts-tooling.svg" width="100%" height="100%">
+            </a>
+        
+    </div>
+    <div class="title">
+        <h1><a href="index.html" class="link">v3.0.0</a></h1>
+        
+    </div>
+    <div class="search-container" id="search-container">
+        <input type="text" placeholder="Search">
+        <ul></ul>
+    </div>
+    
+    <div class="lnb-api hidden"><h3>Classes</h3><ul><li><a href="EntityFactoryEndpoint.html">EntityFactoryEndpoint</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="EntityFactoryEndpoint_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="EntityFactoryEndpoint.html#connect">connect</a></li><li><a href="EntityFactoryEndpoint.html#register">register</a></li><li><a href="EntityFactoryEndpoint.html#send">send</a></li></ul></div></li></ul></div>
+</nav>
+<div id="resizer"></div>
+
+<div class="main" id="main">
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>require('ts-tooling');
+
+function _unpack(data) {
+    return JSON.parse(data);
+}
+
+function _pack(action) {
+    return JSON.stringify(action);
+}
+
+function _sendCache() {
+    if (this._isOpen !== true) {
+        setTimeout(() => _sendCache.bind(this)(), 20);
+        return;
+    }
+    for (let i = 0; i &lt; this._cache.length; i++) {
+        this._connection.send(this._cache.Pull(i));
+    }
+}
+
+/**
+ * create a Endpoint for the EntityFactory Backend
+ */
+class EntityFactoryEndpoint {
+    /**
+     * create a Endpoint for the EntityFactory Backend
+     *
+     * @constructor
+     * @return {EntityFactoryEndpoint}
+     */
+    constructor() {
+        this._connection = null;
+        this._isOpen = false;
+        this._cache = [];
+        this._actions = {};
+    }
+
+    /**
+     * register the Entity Factory Action Handlers
+     *
+     * @param actions {object} a HashMap containing the Actions String as key and the Action Handler as Function
+     * @return {void}
+     */
+    register(actions) {
+        this._actions = actions;
+    }
+
+    /**
+     * connect to the Entity Factory Backend
+     * when the Connection is lost the Connector try to reconnect
+     *
+     * @param url {string?} the URL to the Entity Factory Backend
+     * @return {void}
+     */
+    connect(url) {
+        url = url || location.href.replace('http', 'ws');
+        this._connection = new WebSocket(url);
+        this._connection.onopen = () => {
+            this._isOpen = true;
+        };
+        this._connection.onclose = () => {
+            this._isOpen = false;
+            setTimeout(() => this.connect(url), 2000);
+        };
+        this._connection.onmessage = (msg) => {
+            const action = _unpack(msg.data);
+            const targetAction = this._actions[action.type];
+            if (!targetAction || typeof targetAction !== typeof function () {}) {
+                console.info('no valid Action found for ' + targetAction.type);
+                return;
+            }
+            targetAction(action.payload);
+        };
+        this._connection.onerror = function (err) {
+            console.error(err);
+        };
+    }
+
+    /**
+     * start to send a Action to the Entity Factory Backend
+     * the message was set into the internal cache and try to send when the connection is available
+     *
+     * @param type {string} the action identifier
+     * @param payload {object?} the action Payload
+     */
+    send(type, payload) {
+        this._cache.push(_pack({type: type, payload: payload}));
+        _sendCache.bind(this)();
+    }
+}
+
+module.exports = {EntityFactoryEndpoint};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<footer>
+    <div class="footer-text">  </div>
+</footer>
+<script>prettyPrint();</script>
+<script src="scripts/jquery.min.js"></script>
+<script src="scripts/tui-doc.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+    <script>
+        var id = '_sub'.replace(/"/g, '_');
+        var selectedApi = document.getElementById(id); // do not use jquery selector
+        var $selectedApi = $(selectedApi);
+
+        $selectedApi.removeClass('hidden');
+        $selectedApi.parent().find('.glyphicon').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+        showLnbApi();
+    </script>
+
+</body>
+</html>
