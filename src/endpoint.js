@@ -35,6 +35,7 @@ class EntityFactoryEndpoint {
         this._isOpen = false;
         this._cache = [];
         this._actions = {};
+        this._rights = {};
         if (!tokenName) {
             throw new Error('please specify a unique tokenName in constructor of EntityFactoryEndpoint');
         }
@@ -79,6 +80,15 @@ class EntityFactoryEndpoint {
                 this._connection.close();
                 return;
             }
+            if (action.type === 'invalidToken') {
+                localStorage.removeItem(this._tokenName);
+                this._connection.close();
+                return;
+            }
+            if (action.type === 'myRights') {
+                this._rights = action.payload;
+                return;
+            }
             const targetAction = this._actions[action.type];
             if (!targetAction || typeof targetAction !== typeof function () {}) {
                 console.info('no valid Action found for ' + targetAction.type);
@@ -91,8 +101,46 @@ class EntityFactoryEndpoint {
         };
     }
 
+    /**
+     * authenticate the connector on a entity-factory-gateway
+     *
+     * @param user {string} the username
+     * @param password {string} the password
+     * @return {void}
+     */
     authenticate(user, password) {
         this.send('requestToken', {user: user, password: password});
+    }
+
+    /**
+     * check if some rights are in the authentication context
+     * can connected with "and" or "or"
+     *
+     * @param mode {string} the type of connect names together (and or or)
+     * @param names {string[]} the list of rights
+     * @return {boolean} are the rights condition true
+     */
+    hasRights(mode, names) {
+        const groups = Object.keys(this._rights);
+        if (mode === 'and') {
+            for (let i = 0; i < groups.length; i++) {
+                for (let j = 0; j < names.length; j++) {
+                    if (!this._rights[groups[i]].Contains(names[j])) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } else {
+            for (let i = 0; i < groups.length; i++) {
+                for (let j = 0; j < names.length; j++) {
+                    if (this._rights[groups[i]].Contains(names[j])) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 
     /**
