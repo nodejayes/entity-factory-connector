@@ -13,7 +13,7 @@
   "dependencies": {
     "ts-tooling": "^3.0.1-beta.11",
     "isomorphic-ws": "^4.0.1",
-    "ws": "^7.2.3"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "tsd-jsdoc": "^2.4.0",
