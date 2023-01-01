@@ -19,8 +19,8 @@
     "tsd-jsdoc": "^2.4.0",
     "jsdoc": "^3.6.3",
     "tui-jsdoc-template": "^1.2.2",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
     "mocha": "^7.1.0",
     "chai": "^4.2.0"
   }
